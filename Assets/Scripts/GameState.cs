@@ -33,4 +33,20 @@ public class GameState
         }
     }
     #endregion
+
+    #region isClockVisible
+    private static bool _isClockVisible = true;
+    public static bool isClockVisible
+    {
+        get => _isClockVisible;
+        set
+        {
+            if (value != _isClockVisible)
+            {
+                _isClockVisible = value;
+                GameEventSystem.EmitEvent(nameof(GameState), nameof(isClockVisible));
+            }
+        }
+    }
+    #endregion
 }
