@@ -5,7 +5,10 @@ using UnityEngine.InputSystem.XR;
 public class CharacterScript : MonoBehaviour
 {
     private Animator animator;
-    private AudioSource stepsSound;
+    private AudioSource walkSound;
+    private AudioSource runSound;
+    private AudioSource jumpStartSound;
+    private AudioSource jumpFinishSound;
     private InputAction moveAction;
     private InputAction jumpAction;
     private InputAction sprintAction;
@@ -20,7 +23,10 @@ public class CharacterScript : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        stepsSound = GetComponent<AudioSource>();
+        walkSound = GetComponent<AudioSource>();
+        runSound = GetComponents<AudioSource>()[1];
+        jumpStartSound = GetComponents<AudioSource>()[2];
+        jumpFinishSound = GetComponents<AudioSource>()[3];
         moveAction = InputSystem.actions.FindAction("Move");
         jumpAction = InputSystem.actions.FindAction("Jump");
         sprintAction = InputSystem.actions.FindAction("Sprint");
@@ -84,13 +90,30 @@ public class CharacterScript : MonoBehaviour
             animator.SetInteger("MoveState", (int)moveState);
             prevMoveState = moveState;
 
-            if (moveState == MoveStates.Walk || moveState == MoveStates.SideWalk)
+            if (walkSound.isPlaying) walkSound.Stop();
+            if (runSound.isPlaying) runSound.Stop();
+            if (jumpStartSound.isPlaying) jumpStartSound.Stop();
+            if (jumpFinishSound.isPlaying) jumpFinishSound.Stop();
+
+            switch (moveState)
             {
-                stepsSound.Play();
-            }
-            else
-            {
-                stepsSound.Stop();
+                case MoveStates.Walk:
+                case MoveStates.SideWalk:
+                    walkSound.Play();
+                    break;
+
+                case MoveStates.Run:
+                case MoveStates.SideRun:
+                    runSound.Play();
+                    break;
+
+                case MoveStates.JumpStart:
+                    jumpStartSound.Play();
+                    break;
+
+                case MoveStates.JumpFinish:
+                    jumpFinishSound.Play();
+                    break;
             }
         }
     }
