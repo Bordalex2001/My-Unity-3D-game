@@ -2,6 +2,8 @@
 
 public class DayNightScript : MonoBehaviour
 {
+    private AudioSource daySound;
+    private AudioSource nightSound;
     private float dayDuration = 1000.0f;
     private float hour;
     private float dawnTime = 4.0f; //час закінчення ночі (світанок)
@@ -13,6 +15,9 @@ public class DayNightScript : MonoBehaviour
     void Start()
     {
         hour = 12.0f;
+        //AudioSource[] audioSources = GetComponents<AudioSource>();
+        //daySound = audioSources[0];
+        //nightSound = audioSources[1];
         sun = transform.Find("Sun").GetComponent<Light>();
         moon = transform.Find("Moon").GetComponent<Light>();
         GameEventSystem.AddListenerAndInvoke(OnGameStateChanged, nameof(GameState));
@@ -60,10 +65,22 @@ public class DayNightScript : MonoBehaviour
         if (nameof(GameState.daySkyBox).Equals(payload) && isDay)
         {
             RenderSettings.skybox = GameState.daySkyBox;
+            //SwapAmbientSound(daySound, nightSound);
         }
         else if (nameof(GameState.nightSkyBox).Equals(payload) && !isDay)
         {
             RenderSettings.skybox = GameState.nightSkyBox;
+            //SwapAmbientSound(nightSound, daySound);
         }
     }
+
+    /*private void SwapAmbientSound(AudioSource toPlay, AudioSource toStop)
+    {
+        if (toStop.isPlaying) toStop.Stop();
+
+        if (!toPlay.isPlaying)
+        {
+            toPlay.Play();
+        }
+    }*/
 }

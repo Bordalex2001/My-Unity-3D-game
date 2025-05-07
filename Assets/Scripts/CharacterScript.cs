@@ -23,7 +23,7 @@ public class CharacterScript : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-        walkSound = GetComponent<AudioSource>();
+        walkSound = GetComponents<AudioSource>()[0];
         runSound = GetComponents<AudioSource>()[1];
         jumpStartSound = GetComponents<AudioSource>()[2];
         jumpFinishSound = GetComponents<AudioSource>()[3];
