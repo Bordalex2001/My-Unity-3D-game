@@ -49,4 +49,20 @@ public class GameState
         }
     }
     #endregion
+
+    #region activeSceneIndex
+    private static int _activeSceneIndex = 0;
+    public static int activeSceneIndex
+    {
+        get => _activeSceneIndex;
+        set
+        {
+            if (value != _activeSceneIndex)
+            {
+                _activeSceneIndex = value;
+                GameEventSystem.EmitEvent(nameof(GameState), nameof(activeSceneIndex));
+            }
+        }
+    }
+    #endregion
 }
