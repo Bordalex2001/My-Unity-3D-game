@@ -1,7 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class BearAIScript : MonoBehaviour
 {
@@ -9,29 +7,33 @@ public class BearAIScript : MonoBehaviour
     private float chaseRadius = 8f;
     private float attackRadius = 2f;
     private float patrolRadius = 5f;
-    private float speed;
+    private float moveSpeed = 2.5f;
     private Animator animator;
-
     private Vector3 spawnPoint;
     private Vector3 targetPoint;
     private bool isChasing;
+    private BearMoveStates prevMoveState = BearMoveStates.Idle;
+    private Rigidbody rb;
 
     public Action OnDeath;
 
-    public void Init(Transform playerTarget, float moveSpeed, float patrolRadiusValue)
+    public void Init(Transform playerTarget, float speed, float patrolRadiusValue)
     {
         player = playerTarget;
-        speed = moveSpeed;
+        moveSpeed = speed;
         patrolRadius = patrolRadiusValue;
+
         spawnPoint = transform.position;
+        rb = GetComponent<Rigidbody>();
+        rb.isKinematic = true;
+
+        if (!animator)
+        {
+            animator = GetComponentInChildren<Animator>();
+        }
 
         SetNewPatrolPoint();
-    }
-
-    void Start()
-    {
-        animator = GetComponent<Animator>();
-        animator.SetBool("02_Walk", true);
+        SetAnim(BearMoveStates.Idle);
     }
 
     void Update()
@@ -44,13 +46,14 @@ public class BearAIScript : MonoBehaviour
 
         if (distance < attackRadius)
         {
-            animator.SetTrigger("06_Attack");
+            SetAnim(BearMoveStates.Attack);
             return;
         }
         else if (distance < chaseRadius)
         {
             isChasing = true;
             MoveTo(player.position);
+            SetAnim(BearMoveStates.Run);
             return;
         }
         else
@@ -62,7 +65,7 @@ public class BearAIScript : MonoBehaviour
 
     private void GroundSnap()
     {
-        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 5f))
+        if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit, 5f))
         {
             Vector3 position = transform.position;
             position.y = hit.point.y; // Adjust height to be above the ground
@@ -76,28 +79,54 @@ public class BearAIScript : MonoBehaviour
         {
             SetNewPatrolPoint();
         }
+        
         MoveTo(targetPoint);
+        SetAnim(BearMoveStates.Walk);
     }
 
     private void MoveTo(Vector3 destination) 
     { 
         Vector3 direction = (destination - transform.position).normalized;
         
-        transform.position += direction * speed * Time.deltaTime;
-        transform.rotation = Quaternion.LookRotation(direction);
+        if (Physics.Raycast(transform.position + Vector3.up, direction, 1f))
+        {
+            direction = Quaternion.Euler(0f, 30f, 0f) * direction; // Reverse direction if blocked
+        }
 
-        animator.SetBool("02_Walk", true);
+        Vector3 newPosition = transform.position + moveSpeed * Time.deltaTime * direction;
+        rb.MovePosition(newPosition);
+        transform.rotation = Quaternion.LookRotation(direction);
     }
 
     private void SetNewPatrolPoint()
     {
-        Vector2 offset = UnityEngine.Random.insideUnitCircle * patrolRadius;
-        targetPoint = spawnPoint + new Vector3(offset.x, 0, offset.y);
+        for (int i = 0; i < 10; i++)
+        {
+            Vector2 offset = UnityEngine.Random.insideUnitCircle * patrolRadius;
+            Vector3 rawPoint = spawnPoint + new Vector3(offset.x, 0f, offset.y);
+
+            if (Physics.Raycast(rawPoint + Vector3.up * 5f, Vector3.down, out RaycastHit hit, 10f))
+            {
+                targetPoint = hit.point;
+                return;
+            }
+        }
+
+        targetPoint = spawnPoint; // Fallback to spawn point if no valid patrol point found
+    }
+
+    private void SetAnim(BearMoveStates moveState)
+    {
+        if (animator && prevMoveState != moveState)
+        {
+            animator.SetInteger("MoveState", (int)moveState);
+            prevMoveState = moveState;
+        }
     }
 
     public void Die()
     {
-        animator.SetTrigger("07_Die");
+        SetAnim(BearMoveStates.Die);
         OnDeath?.Invoke();
         Destroy(gameObject, 3f);
     }

@@ -657,7 +657,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &411009578
 Transform:
   m_ObjectHideFlags: 0
@@ -4303,10 +4303,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1778032969876766506, guid: 44c879fcbcd4ce342bf21a9f83843f88, type: 3}
-      propertyPath: player
-      value: 
-      objectReference: {fileID: 4038053241529522731}
     - target: {fileID: 2692444432473982167, guid: 44c879fcbcd4ce342bf21a9f83843f88, type: 3}
       propertyPath: m_LocalPosition.x
       value: 583
@@ -4346,6 +4342,10 @@ PrefabInstance:
     - target: {fileID: 2692444432473982167, guid: 44c879fcbcd4ce342bf21a9f83843f88, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3825565594340402352, guid: 44c879fcbcd4ce342bf21a9f83843f88, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6465377835035874570, guid: 44c879fcbcd4ce342bf21a9f83843f88, type: 3}
       propertyPath: m_Name
